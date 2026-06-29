@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TFC Driver Mobile</title>
+  <link rel="stylesheet" href="./css/driver.css" />
+</head>
+<body>
+  <div id="proofModal" class="modal hidden">
+    <div class="modal-card">
+      <div class="row" style="justify-content:space-between; align-items:center;">
+        <div><h2 id="proofModalTitle">Complete job</h2><p id="proofModalSub" class="muted"></p></div>
+        <button id="closeProofModalBtn" class="secondary" style="width:auto;">Close</button>
+      </div>
+      <div class="stack" style="margin-top:12px;">
+        <input id="modalProofName" placeholder="Contact name" />
+        <input id="modalProofPhoto" type="file" accept="image/*" capture="environment" multiple />
+        <div id="modalProofPreview" class="muted"></div>
+        <textarea id="modalProofNotes" placeholder="Proof notes (optional)" style="min-height:100px;"></textarea>
+        <div class="muted">Signature</div>
+        <canvas id="modalProofSignature" width="320" height="140"></canvas>
+        <div class="row"><button id="clearModalSignatureBtn" class="secondary">Clear signature</button><button id="submitProofBtn">Save and complete</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="topbar compact-topbar">
+      <div class="brand-row"><div class="logo"><img src="images/rnhlogo.png" alt="RNH Logo" /></div><div class="user-info"><div id="sessionInfo" class="email-text">Not logged in</div></div></div>
+      <button id="logoutBtn" class="secondary logout-btn hidden">Logout</button>
+    </div>
+
+    <div id="loginSection" class="panel">
+      <h2>Login</h2>
+      <div class="stack">
+        <input id="email" type="email" placeholder="Email" autocomplete="username email" autocapitalize="none" spellcheck="false" />
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+        <div class="row"><button id="loginBtn">Login</button><button id="checkSessionBtn" class="secondary">Refresh session</button></div>
+      </div>
+    </div>
+
+    <div id="driverPanel" class="panel hidden" style="margin-top:16px;">
+      <div class="job-header" style="margin-bottom:12px;"><div><h2>My Jobs</h2><div class="driver-summary"><div id="driverInfo" class="driver-name"></div><div id="driverStats" class="driver-stats"></div></div></div><button id="refreshJobsBtnDriver" class="secondary">Refresh jobs</button></div>
+      <div id="jobs" class="job-list"></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <script type="module" src="./js/apps/driverApp.js"></script>
+</body>
+</html>

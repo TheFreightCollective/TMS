@@ -1,0 +1,7 @@
+import { sb } from '../core/supabaseClient.js';
+import { toast } from '../core/utils.js';
+import { loadJobs } from './jobs.js';
+import { loadDrivers } from './drivers.js';
+export async function allocateJobLeg(jobId,legType,driverId){ const res=await sb.rpc('allocate_job_leg',{p_job_id:jobId,p_leg_type:legType,p_driver_id:driverId||null,p_vehicle_id:null,p_notes:null}); if(res.error){toast((driverId?'Allocation':'Unallocation')+' failed: '+res.error.message,true);return;} toast(driverId?`${legType} driver assigned`:`${legType} driver removed`); await loadJobs(); }
+export async function updateJobLegStatus(jobId,legType,status){ const res=await sb.rpc('update_job_leg_status',{p_job_id:jobId,p_leg_type:legType,p_status:status}); if(res.error){toast('Status update failed: '+res.error.message,true);return;} toast(`${legType.charAt(0).toUpperCase()+legType.slice(1)} status updated to ${status}`); await loadJobs(); }
+export function bindAllocationEvents(){ document.addEventListener('change',async evt=>{const sel=evt.target.closest('.driver-select'); if(!sel)return; await allocateJobLeg(sel.getAttribute('data-job'),sel.getAttribute('data-type'),sel.value);}); document.addEventListener('click',evt=>{ const btn=evt.target.closest('.driver-action-btn'); if(btn) updateJobLegStatus(btn.getAttribute('data-job-id'),btn.getAttribute('data-leg-type'),btn.getAttribute('data-status')); }); document.getElementById('reloadDriversBtn')?.addEventListener('click',async()=>{await loadDrivers(); await loadJobs();}); }

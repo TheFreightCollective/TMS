@@ -1,0 +1,19 @@
+export const state = {
+  currentUser: null,
+  currentProfile: null,
+  currentDriver: null,
+  currentCustomerId: null,
+  driverOptions: [],
+  visibleJobs: [],
+  allAddresses: [],
+  auPostcodes: [],
+  suburbSelected: false,
+  currentFilter: 'all',
+  bookingItems: [],
+  bookingItemCounter: 0,
+  editJobId: null,
+  editConsignmentId: null,
+  editItems: [],
+  editItemCounter: 0,
+  editDeletedItemIds: []
+};

@@ -1,0 +1,6 @@
+import { sb } from '../core/supabaseClient.js';
+import { state } from '../core/state.js';
+import { el, toast, escapeHtml } from '../core/utils.js';
+export async function loadDriverContext(){ const res=await sb.from('drivers').select('id, full_name, user_id').eq('user_id',state.currentUser.id).limit(1).maybeSingle(); if(res.error){toast('Driver profile load failed: '+res.error.message,true);return;} state.currentDriver=res.data||null; if(el('driverInfo'))el('driverInfo').textContent=state.currentDriver?`Driver profile: ${state.currentDriver.full_name} (${state.currentDriver.id})`:'No driver row found for this user in public.drivers.'; }
+export async function loadDrivers(){ const res=await sb.from('drivers').select('id, full_name, active').eq('active',true).order('full_name',{ascending:true}); if(res.error){toast('Driver list failed: '+res.error.message,true);return;} state.driverOptions=res.data||[]; if(el('opsDriversState'))el('opsDriversState').textContent=`${state.driverOptions.length} active drivers loaded.`; }
+export function driverOptionsMarkup(selectedId){ return ['<option value="">Select driver...</option>'].concat(state.driverOptions.map(d=>`<option value="${escapeHtml(d.id)}" ${selectedId===d.id?'selected':''}>${escapeHtml(d.full_name)}</option>`)).join(''); }
