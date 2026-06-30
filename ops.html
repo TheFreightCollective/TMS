@@ -12,7 +12,7 @@
   <div id="loginScreen" class="login-screen">
     <div class="login-card">
       <div class="login-brand">
-        <div class="logo">↗</div>
+        <img id="loginBrandLogo" src="./images/rnhlogo.png" alt="Company logo" class="brand-logo" />
         <div>
           <h1>TFC Transport</h1>
           <p class="muted">Operations Portal</p>
@@ -30,13 +30,10 @@
   <div id="appShell" class="app-shell hidden">
 
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <div id="sidebarBackdrop" class="sidebar-backdrop hidden"></div>
+    <aside id="sidebar" class="sidebar">
       <div class="sidebar-brand">
-        <div class="logo">↗</div>
-        <div class="sidebar-brand-text">
-          <div class="sidebar-brand-name">TFC TMS</div>
-          <div class="sidebar-brand-sub">Operations</div>
-        </div>
+        <img id="sidebarLogo" src="./images/rnhlogo.png" alt="Company logo" class="sidebar-brand-logo" />
       </div>
 
       <nav class="sidebar-nav">
@@ -59,11 +56,10 @@
           <span class="nav-icon">👷</span><span class="nav-label">Contractors</span>
         </a>
         <a class="nav-item admin-only hidden" data-section="staff">
-          <span class="nav-icon">👥</span><span class="nav-label">Staff &amp; Drivers</span>
+          <span class="nav-icon">👥</span><span class="nav-label">Resources</span>
         </a>
         <a class="nav-item" data-section="invoices">
           <span class="nav-icon">💰</span><span class="nav-label">Invoices</span>
-          <span class="nav-badge coming-soon">Soon</span>
         </a>
         <a class="nav-item" data-section="reports">
           <span class="nav-icon">📊</span><span class="nav-label">Reports</span>
@@ -88,9 +84,8 @@
 
       <!-- Page header -->
       <div class="page-header">
-        <div>
-          <h2 id="pageTitle">Dashboard</h2>
-          <p class="muted" id="pageSubtitle">Welcome back</p>
+        <div class="page-header-left">
+          <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Toggle navigation">☰</button>
         </div>
         <div id="pageActions" class="row"></div>
       </div>
@@ -178,9 +173,8 @@
             <table class="jobs-table">
               <thead>
                 <tr>
-                  <th>Job</th><th>Customer</th><th>Reference</th><th>Pickup</th><th>Delivery</th>
-                  <th>Weight</th><th>Cube</th><th>Status</th>
-                  <th>Pickup Driver</th><th>Delivery Driver</th><th></th>
+                  <th>Job</th><th>Customer</th><th>Reference</th><th>Pickup Co.</th><th>Pickup Suburb</th><th>Delivery Co.</th><th>Delivery Suburb</th><th>Pickup</th><th>Delivery</th>
+                  <th>Weight</th><th>Cube</th><th>Status</th><th>Pickup Driver</th><th>Delivery Driver</th><th></th>
                 </tr>
               </thead>
               <tbody id="jobs"></tbody>
@@ -245,15 +239,49 @@
             </div>
           </div>
           <div id="opsDriversState" class="muted">Drivers not loaded yet.</div>
+          <div id="allocationBoard" class="allocation-board" style="margin-top:14px;"></div>
         </div>
       </section>
 
       <!-- ── CUSTOMERS ──────────────────────────────────────────── -->
       <section id="section-customers" class="section hidden">
-        <div class="panel coming-soon-panel">
-          <div class="coming-soon-icon">🏢</div>
-          <h3>Customers</h3>
-          <p class="muted">Customer management coming soon — view, add and manage customer accounts and their saved addresses.</p>
+        <div class="panel" style="margin-bottom:16px;">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <h3>Customers</h3>
+            <div class="row">
+              <button id="reloadCustomersBtn" class="secondary small">Reload</button>
+            </div>
+          </div>
+          <div class="booking-topbar" style="margin-bottom:12px;">
+            <input id="customerCompanyName" placeholder="Customer company" />
+            <input id="customerContactName" placeholder="Contact name" />
+            <input id="customerContactEmail" placeholder="Contact email" />
+            <button id="createCustomerBtn" class="inline-btn small">Create customer</button>
+          </div>
+          <div class="items-table-wrap">
+            <table class="jobs-table">
+              <thead><tr><th>Customer</th><th>Contact</th><th>Portal access</th></tr></thead>
+              <tbody id="customerTableBody"><tr><td colspan="3" class="muted">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <h3>Customer portal logins</h3>
+          </div>
+          <div class="booking-topbar" style="margin-bottom:12px;">
+            <select id="customerPortalCustomerSelect"><option value="">Select customer...</option></select>
+            <input id="customerPortalName" placeholder="Full name" />
+            <input id="customerPortalEmail" placeholder="Email" />
+            <input id="customerPortalPassword" type="password" placeholder="Temporary password" />
+            <select id="customerPortalRoleSelect">
+              <option value="warehouse">Warehouse</option>
+              <option value="reception">Reception</option>
+              <option value="accounts">Accounts</option>
+            </select>
+            <button id="createCustomerPortalUserBtn" class="inline-btn small">Create login</button>
+          </div>
         </div>
       </section>
 
@@ -266,7 +294,7 @@
         </div>
       </section>
 
-      <!-- ── STAFF & DRIVERS ────────────────────────────────────── -->
+      <!-- ── Resources ────────────────────────────────────── -->
       <section id="section-staff" class="section hidden">
         <div id="staffMgmtPanel">
           <!-- Staff section — admin only -->
@@ -301,15 +329,73 @@
               </table>
             </div>
           </div>
+<!-- Vehicle section -->
+          <div class="panel" style="margin-top:16px;">
+          <div class="panel-header">
+            <h3>Vehicles</h3>
+          </div>
+
+          <div class="booking-topbar" style="margin-bottom:12px;">
+            <input id="vehicleName" placeholder="Vehicle name (e.g. Truck 1)" />
+            <input id="vehicleRego" placeholder="Registration" />
+            <button id="createVehicleBtn" class="inline-btn small">Add vehicle</button>
+          </div>
+          </div>
+          <div class="items-table-wrap">
+            <table class="jobs-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Rego</th>
+                </tr>
+              </thead>
+              <tbody id="vehicleTableBody">
+                <tr><td colspan="2" class="muted">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          
         </div>
       </section>
 
       <!-- ── INVOICES ───────────────────────────────────────────── -->
       <section id="section-invoices" class="section hidden">
-        <div class="panel coming-soon-panel">
-          <div class="coming-soon-icon">💰</div>
-          <h3>Invoices</h3>
-          <p class="muted">Invoice generation coming soon — create, send and track invoices against completed jobs.</p>
+        <div class="panel">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <div>
+              <h3>Invoice starter</h3>
+              <p class="muted">Select completed jobs and generate invoice drafts grouped by customer.</p>
+            </div>
+            <div class="row">
+              <span id="invoiceSelectionSummary" class="muted" style="font-size:12px;">0 selected of 0 completed jobs</span>
+              <button id="generateInvoicesBtn" class="inline-btn">Generate invoices</button>
+            </div>
+          </div>
+          <div class="items-table-wrap">
+            <table class="jobs-table">
+              <thead>
+                <tr>
+                  <th><input id="invoiceSelectAll" type="checkbox" /></th>
+                  <th>Job</th>
+                  <th>Customer</th>
+                  <th>Reference</th>
+                  <th>Completed</th>
+                  <th>Weight</th>
+                  <th>Cube</th>
+                </tr>
+              </thead>
+              <tbody id="invoiceJobsBody"><tr><td colspan="7" class="muted">Loading completed jobs...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:16px;">
+          <div class="panel-header" style="margin-bottom:12px;">
+            <h3>Invoice drafts</h3>
+          </div>
+          <div id="invoiceDrafts" class="invoice-draft-grid">
+            <div class="muted">Select completed jobs to prepare invoice drafts.</div>
+          </div>
         </div>
       </section>
 
@@ -351,7 +437,10 @@
     <div class="modal-card edit-job-card">
       <div class="edit-job-header"><div><h2 id="editJobTitle">Edit Job</h2><p class="muted">Update job details and freight items.</p></div><button id="closeEditJobBtn" type="button" class="secondary small">Close</button></div>
       <div class="edit-job-grid"><div class="stack"><label class="muted">Customer reference</label><input id="editCustomerRef" /></div><div class="stack"><label class="muted">Pickup date</label><input id="editPickupDate" type="date" /></div><div class="stack"><label class="muted">Delivery date</label><input id="editDeliveryDate" type="date" /></div></div>
-      <div class="edit-job-grid" style="margin-top:12px;"><div class="stack"><label class="muted">Pickup instructions</label><textarea id="editSenderNotes"></textarea></div><div class="stack"><label class="muted">Delivery instructions</label><textarea id="editReceiverNotes"></textarea></div></div>
+      <div class="edit-job-grid" style="margin-top:12px;"><div class="stack"><label class="muted">Pickup company</label><input id="editPickupCompany" /></div><div class="stack"><label class="muted">Pickup address line</label><input id="editPickupAddressLine" /></div><div class="stack"><label class="muted">Pickup suburb</label><input id="editPickupSuburb" /></div></div>
+      <div class="edit-job-grid" style="margin-top:12px;"><div class="stack"><label class="muted">Pickup state</label><input id="editPickupState" /></div><div class="stack"><label class="muted">Pickup postcode</label><input id="editPickupPostcode" /></div><div class="stack"><label class="muted">Delivery company</label><input id="editDeliveryCompany" /></div></div>
+      <div class="edit-job-grid" style="margin-top:12px;"><div class="stack"><label class="muted">Delivery address line</label><input id="editDeliveryAddressLine" /></div><div class="stack"><label class="muted">Delivery suburb</label><input id="editDeliverySuburb" /></div><div class="stack"><label class="muted">Delivery state</label><input id="editDeliveryState" /></div></div>
+      <div class="edit-job-grid" style="margin-top:12px;"><div class="stack"><label class="muted">Delivery postcode</label><input id="editDeliveryPostcode" /></div><div class="stack"><label class="muted">Pickup instructions</label><textarea id="editSenderNotes"></textarea></div><div class="stack"><label class="muted">Delivery instructions</label><textarea id="editReceiverNotes"></textarea></div></div>
       <div style="margin-top:18px;"><h3>Freight items</h3><div class="items-table-wrap" style="margin-top:10px;"><table class="items-table"><thead><tr><th>Description</th><th>Type</th><th>Qty</th><th>L (m)</th><th>W (m)</th><th>H (m)</th><th>Weight Each (kg)</th><th>Cubic (m³)</th><th></th></tr></thead><tbody id="editItemsBody"></tbody></table></div><div class="row" style="justify-content:space-between;margin-top:12px;"><button id="addEditItemBtn" type="button" class="secondary inline-btn">+ Add item</button><div class="item-totals"><div><span class="muted">Total weight </span><strong id="editTotalWeight">0 kg</strong></div><div><span class="muted">Total cubic </span><strong id="editTotalCubic">0.000 m³</strong></div></div></div></div>
       <div class="booking-actions"><button id="saveEditJobBtn" type="button" class="inline-btn create-job-btn">Save changes</button></div>
     </div>
@@ -365,6 +454,19 @@
       <input id="addr-contact" placeholder="Contact Name" /><input id="addr-phone" placeholder="Phone" />
       <select id="addr-type"><option value="both">Both</option><option value="pickup">Pickup Only</option><option value="delivery">Delivery Only</option></select>
       <div style="display:flex;gap:10px;margin-top:10px;"><button id="saveAddressBtn" class="inline-btn">Save</button><button id="cancelAddressBtn" class="secondary inline-btn">Cancel</button></div>
+    </div>
+  </div>
+
+  <!-- Brand settings modal -->
+  <div id="brandModal" class="modal hidden">
+    <div class="modal-card" style="max-width:480px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h2>Branding</h2><button id="cancelBrandModalBtn" class="secondary small">Close</button></div>
+      <div class="stack">
+        <label class="muted">Upload a new logo</label>
+        <input id="brandLogoInput" type="file" accept="image/*" />
+        <button id="uploadBrandLogoBtn" class="inline-btn">Upload logo</button>
+        <p class="muted" style="font-size:12px;">PNG, JPG, and GIF files are supported. The new image will replace the current site logo immediately.</p>
+      </div>
     </div>
   </div>
 

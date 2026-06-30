@@ -15,6 +15,19 @@ const PAGE_TITLES = {
 
 let currentSection = 'dashboard';
 
+export function setMobileSidebarOpen(open) {
+  const sidebar = el('sidebar');
+  const backdrop = el('sidebarBackdrop');
+  const toggle = el('mobileMenuToggle');
+  if (sidebar) sidebar.classList.toggle('mobile-open', open);
+  if (backdrop) backdrop.classList.toggle('hidden', !open);
+  if (toggle) toggle.setAttribute('aria-expanded', String(open));
+}
+
+export function closeMobileSidebar() {
+  setMobileSidebarOpen(false);
+}
+
 export function navigateTo(section, jobFilter = null) {
   // Hide all sections
   document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
@@ -28,6 +41,8 @@ export function navigateTo(section, jobFilter = null) {
   // Highlight nav item
   const navItem = document.querySelector(`.nav-item[data-section="${section}"]`);
   if (navItem) navItem.classList.add('active');
+
+  closeMobileSidebar();
 
   // Update page header
   const meta = PAGE_TITLES[section] || { title: section, subtitle: '' };
@@ -61,7 +76,7 @@ export function updateDashboardStats(jobs) {
   const all = jobs || [];
   const newCount = all.filter(j => !j.pickup_driver_id || !j.delivery_driver_id).length;
   const allocatedCount = all.filter(j => j.pickup_driver_id && j.delivery_driver_id && j.pickup_status === 'allocated').length;
-  const inProgressCount = all.filter(j => j.pickup_status === 'picked_up' && j.delivery_status !== 'delivered').length;
+  const inProgressCount = all.filter(j => j.pickup_status === 'picked_up' || ['accepted','en_route_pickup'].includes(j.pickup_status || '') || ['accepted','en_route_delivery'].includes(j.delivery_status || '')).length;
   const completedToday = all.filter(j => j.delivery_status === 'delivered' && (j.updated_at || '').slice(0, 10) === today).length;
 
   if (el('statNew')) el('statNew').textContent = newCount;
@@ -92,9 +107,11 @@ export function updateDashboardStats(jobs) {
 }
 
 function getJobStatus(job) {
-  if (job.delivery_status === 'delivered') return 'completed';
-  if (job.pickup_status === 'picked_up') return 'in_progress';
-  if (job.pickup_driver_id && job.delivery_driver_id) return 'allocated';
+  const pickupStatus = job?.pickup_status || '';
+  const deliveryStatus = job?.delivery_status || '';
+  if (deliveryStatus === 'delivered') return 'completed';
+  if (pickupStatus === 'picked_up' || ['accepted','en_route_pickup'].includes(pickupStatus) || ['accepted','en_route_delivery'].includes(deliveryStatus)) return 'in_progress';
+  if (job?.pickup_driver_id && job?.delivery_driver_id) return 'allocated';
   return 'pending_allocation';
 }
 
@@ -132,6 +149,14 @@ export function bindNavEvents() {
       if (section) navigateTo(section);
     });
   });
+
+  el('mobileMenuToggle')?.addEventListener('click', () => {
+    const sidebar = el('sidebar');
+    const open = sidebar?.classList.contains('mobile-open');
+    setMobileSidebarOpen(!open);
+  });
+
+  el('sidebarBackdrop')?.addEventListener('click', closeMobileSidebar);
 
   // Job filter buttons
   document.addEventListener('click', evt => {

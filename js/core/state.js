@@ -13,6 +13,8 @@ export const state = {
   bookingItemCounter: 0,
   editJobId: null,
   editConsignmentId: null,
+  editPickupAddressId: null,
+  editDeliveryAddressId: null,
   editItems: [],
   editItemCounter: 0,
   editDeletedItemIds: []

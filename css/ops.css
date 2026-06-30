@@ -13,6 +13,8 @@ h1,h2,h3{margin:0}
 button{border-radius:10px;border:none;font-weight:600;cursor:pointer;font-size:13px;}
 .inline-btn{padding:10px 16px;background:var(--brand);color:#fff;}
 .inline-btn:hover{background:var(--brand2)}
+.inline-link{background:none;border:none;padding:0;color:var(--brand);font-weight:700;text-align:left;cursor:pointer;}
+.inline-link:hover{color:var(--brand2);text-decoration:underline;}
 .secondary{background:#edf2f7;color:#0f172a;border:1px solid var(--border);}
 .secondary:hover{background:#e2e8f0}
 .small{padding:6px 10px;font-size:12px;}
@@ -34,6 +36,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);border-co
 .login-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(15,23,42,.10);}
 .login-brand{display:flex;align-items:center;gap:12px;}
 .logo{width:40px;height:40px;border-radius:12px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px;flex-shrink:0;}
+.brand-logo{height:44px;width:auto;max-width:180px;object-fit:contain;border-radius:12px;padding:4px;background:#fff;border:1px solid var(--border);} .allocation-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;} .allocation-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--panel-2);display:grid;gap:10px;} .allocation-card-header{display:flex;justify-content:space-between;align-items:center;gap:8px;} .allocation-selects{display:grid;gap:8px;}
 
 /* ── App shell ──────────────────────────────────────────────────── */
 .app-shell{display:flex;min-height:100vh;}
@@ -45,9 +48,13 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);border-co
   display:flex;flex-direction:column;
   position:sticky;top:0;height:100vh;overflow-y:auto;
 }
-.sidebar-brand{display:flex;align-items:center;gap:10px;padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
-.sidebar-brand-name{font-weight:700;color:#fff;font-size:15px;}
-.sidebar-brand-sub{font-size:11px;color:var(--sidebar-text);margin-top:1px;}
+.sidebar-brand{display:flex;align-items:center;justify-content:center;padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sidebar-brand-logo{height:56px;width:auto;max-width:180px;object-fit:contain;display:block;filter:brightness(1.05);} 
+.page-header-brand{display:flex;align-items:center;min-height:56px;}
+.page-header h2,.page-header p{display:none;}
+.page-header-left{display:flex;align-items:center;}
+.mobile-menu-toggle{display:none;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:18px;}
+.sidebar-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:980;display:block;}
 .sidebar-nav{flex:1;padding:12px 8px;}
 .nav-item{
   display:flex;align-items:center;gap:10px;padding:10px 10px;
@@ -99,6 +106,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);border-co
 .jobs-table tr:last-child td{border-bottom:none;}
 .jobs-table tbody tr:hover{background:#f8fbff;}
 .driver-select{width:100%;max-width:140px;}
+.driver-action-btn.is-busy{opacity:.7;cursor:wait;}
 #jobSearch{width:260px;}
 
 /* ── Booking ────────────────────────────────────────────────────── */
@@ -127,7 +135,15 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);border-co
 .booking-actions{display:flex;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--border);margin-top:16px;}
 .create-job-btn{padding:12px 24px;font-size:14px;}
 .items-table-wrap{overflow-x:auto;}
-@media(max-width:960px){.booking-sections,.location-row{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}}
+@media(max-width:960px){.booking-sections,.location-row{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}.mobile-menu-toggle{display:flex}.sidebar{position:fixed;left:0;top:0;height:100vh;z-index:1000;transform:translateX(-100%);transition:transform .2s ease;box-shadow:0 20px 60px rgba(15,23,42,.24)}.sidebar.mobile-open{transform:translateX(0)}.page-header{padding:16px 16px 0}.section{padding:0 16px 20px}.panel-header{flex-direction:column;align-items:flex-start;gap:8px}.jobs-toolbar{flex-direction:column;align-items:flex-start}.jobs-toolbar .row{width:100%}#jobSearch{width:100%}.invoice-draft-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.stat-grid{grid-template-columns:1fr}.page-header{align-items:center}.page-header .row{width:100%;justify-content:flex-end}.invoice-draft-grid{grid-template-columns:1fr}.items-table-wrap{overflow-x:auto}.jobs-table,.items-table{display:block;width:100%;border-collapse:separate;border-spacing:0}.jobs-table thead,.items-table thead{display:none}.jobs-table tbody,.items-table tbody{display:grid;gap:10px}.jobs-table tr,.items-table tr{display:block;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:var(--panel);box-shadow:0 4px 10px rgba(15,23,42,.03)}.jobs-table th,.jobs-table td,.items-table th,.items-table td{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border:none;white-space:normal}.jobs-table td::before,.items-table td::before{content:attr(data-label);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;flex:0 0 40%}.jobs-table td:last-child,.items-table td:last-child{justify-content:flex-start}.jobs-table td:first-child,.items-table td:first-child{padding-top:0}.jobs-table td input,.items-table td input{width:auto}}
+/* ── Invoice starter ──────────────────────────────────────────── */
+.invoice-draft-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}
+.invoice-draft-card{border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--panel-2);display:grid;gap:8px;}
+.invoice-draft-header{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.invoice-draft-list{padding-left:18px;margin:0;display:grid;gap:4px;font-size:13px;color:var(--text);}
+.invoice-select-checkbox{width:auto;}
+#invoiceSelectAll{width:auto;}
 
 /* ── Coming soon panels ─────────────────────────────────────────── */
 .coming-soon-panel{text-align:center;padding:60px 24px;}

@@ -34,12 +34,13 @@ function renderDriverLegActions(job){
   if(job.pickup_driver_id === state.currentDriver?.id){
     const pickupStatus = job.pickup_status || 'allocated';
     if(pickupStatus === 'allocated') html += `<button class="driver-action-btn" data-job-id="${escapeHtml(job.job_id)}" data-leg-type="pickup" data-status="accepted">Accept pickup</button>`;
-    if(pickupStatus === 'accepted') html += `<button class="driver-action-btn" data-job-id="${escapeHtml(job.job_id)}" data-leg-type="pickup" data-status="en_route_pickup">Start pickup</button>`;
-    if(pickupStatus === 'en_route_pickup') html += `<button class="open-proof-btn" data-job-id="${escapeHtml(job.job_id)}" data-leg-type="pickup">Complete pickup</button>`;
+    if(pickupStatus === 'accepted' || pickupStatus === 'en_route_pickup') html += `<button class="driver-action-btn" data-job-id="${escapeHtml(job.job_id)}" data-leg-type="pickup" data-status="en_route_pickup">Start pickup</button>`;
+    if(pickupStatus === 'en_route_pickup' || pickupStatus === 'picked_up') html += `<button class="open-proof-btn" data-job-id="${escapeHtml(job.job_id)}" data-leg-type="pickup">Complete pickup</button>`;
   }
   if(job.delivery_driver_id === state.currentDriver?.id){
     const deliveryStatus = job.delivery_status || 'allocated';
-    if(job.pickup_status === 'picked_up'){
+    const pickupReady = ['accepted','en_route_pickup','picked_up'].includes(job.pickup_status || '');
+    if(pickupReady){
       if(deliveryStatus === 'allocated') html += `<button class="driver-action-btn" data-job-id="${escapeHtml(job.job_id)}" data-leg-type="delivery" data-status="accepted">Accept delivery</button>`;
       if(deliveryStatus === 'accepted') html += `<button class="driver-action-btn" data-job-id="${escapeHtml(job.job_id)}" data-leg-type="delivery" data-status="en_route_delivery">Start delivery</button>`;
       if(deliveryStatus === 'en_route_delivery') html += `<button class="open-proof-btn" data-job-id="${escapeHtml(job.job_id)}" data-leg-type="delivery">Complete delivery</button>`;
@@ -60,6 +61,9 @@ export function bindDriverJobEvents(){
   document.addEventListener('click', async function(evt){
     const actionBtn = evt.target.closest('.driver-action-btn');
     if(actionBtn){
+      actionBtn.disabled = true;
+      actionBtn.textContent = 'Working...';
+      actionBtn.classList.add('is-busy');
       const ok = await updateDriverLegStatus(actionBtn.getAttribute('data-job-id'), actionBtn.getAttribute('data-leg-type'), actionBtn.getAttribute('data-status'));
       if(ok) await loadDriverJobs();
       return;

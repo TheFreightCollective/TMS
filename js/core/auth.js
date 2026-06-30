@@ -6,6 +6,7 @@ import { loadCustomerContext, loadCustomers } from '../modules/customers.js';
 import { loadDriverContext, loadDrivers } from '../modules/drivers.js';
 import { initInlineSuburbSearch, loadPostcodes, loadAllAddresses, initAddressDropdowns } from '../modules/addresses.js';
 import { loadJobs, renderJobs } from '../modules/jobs.js';
+import { refreshAllocationBoard } from '../modules/allocations.js';
 import { renderStaffPanelForRole, loadStaff, loadDriversForManagement } from '../modules/staffManagement.js';
 import { showAppShell, showLoginScreen, updateSidebarUser, navigateTo } from '../modules/nav.js';
 
@@ -35,7 +36,7 @@ export async function bootstrapUser(user) {
   try {
     if (role === 'customer') await loadCustomerContext();
     if (role === 'driver') await loadDriverContext();
-    if (role === 'admin' || role === 'ops') {
+    if (!['customer', 'driver'].includes(role)) {
       await loadCustomers();
       await loadDrivers();
       await loadDriversForManagement();
@@ -47,6 +48,7 @@ export async function bootstrapUser(user) {
     await loadAllAddresses();
     initAddressDropdowns();
     await loadJobs();
+    await refreshAllocationBoard();
   } catch (err) {
     console.error('Bootstrap error:', err);
   }
