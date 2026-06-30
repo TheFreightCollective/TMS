@@ -20,7 +20,7 @@ function getCustomerName(job, customerMap) {
 
 async function loadCustomerMap(customerIds) {
   if (!customerIds.length) return new Map();
-  const { data, error } = await sb.from('customers').select('id, company_name, contact_name').in('id', customerIds);
+ const { data, error } = await sb.from('customers').select('id, company_name').in('id', customerIds);
   if (error || !data?.length) return new Map();
   return new Map(data.map(customer => [customer.id, customer]));
 }
