@@ -2,16 +2,22 @@ import { sb } from '../core/supabaseClient.js';
 import { state } from '../core/state.js';
 import { el, toast, escapeHtml, formatDateTime } from '../core/utils.js';
 
+function getJobProgress(job) {
+  if (job?.delivered_at) return 'delivered';
+  if (job?.picked_up_at) return 'picked_up';
+  if (job?.accepted_at) return 'accepted';
+  return 'pending';
+}
+
 function isCompletedJob(job) {
-  const deliveryStatus = String(job?.delivery_status || '').toLowerCase();
-  const pickupStatus = String(job?.pickup_status || '').toLowerCase();
+  const progress = getJobProgress(job);
   const status = String(job?.status || '').toLowerCase();
   const completedValues = ['delivered', 'complete', 'completed', 'completed_job', 'done', 'closed', 'invoiced', 'pod_received', 'pod_uploaded'];
-  const hasCompletedFlag = [deliveryStatus, pickupStatus, status].some(value => completedValues.includes(value));
+  const hasCompletedFlag = progress === 'delivered' || [status].some(value => completedValues.includes(value));
   const hasProofFlag = [job?.pod_received, job?.pod_uploaded, job?.proof_received, job?.proof_uploaded].some(Boolean);
   const deliveryDate = job?.delivery_date || job?.pickup_date;
   const deliveryIsPast = deliveryDate && new Date(deliveryDate) < new Date();
-  return hasCompletedFlag || hasProofFlag || (deliveryIsPast && (pickupStatus === 'picked_up' || deliveryStatus || status));
+  return hasCompletedFlag || hasProofFlag || (deliveryIsPast && (['accepted', 'picked_up', 'delivered'].includes(progress) || status));
 }
 
 function getCustomerName(job, customerMap) {
@@ -98,7 +104,7 @@ export async function loadInvoiceCandidates() {
 
   const viewRes = await sb
     .from('v_job_current_allocations')
-    .select('job_id, job_number, customer_id, customer_name, customer_reference, pickup_date, delivery_date, total_weight_kg, total_cubic_m3, delivery_status, pickup_status, status')
+    .select('job_id, job_number, customer_id, customer_name, customer_reference, pickup_date, delivery_date, total_weight_kg, total_cubic_m3, accepted_at, picked_up_at, delivered_at, status')
     .order('delivery_date', { ascending: false });
 
   if (!viewRes.error && viewRes.data?.length) {
@@ -112,7 +118,7 @@ export async function loadInvoiceCandidates() {
     error = viewRes.error;
     const jobsRes = await sb
       .from('jobs')
-      .select('id, job_number, customer_id, customer_reference, pickup_date, delivery_date, total_weight_kg, total_cubic_m3, delivery_status, pickup_status, status')
+      .select('id, job_number, customer_id, customer_reference, pickup_date, delivery_date, total_weight_kg, total_cubic_m3, accepted_at, picked_up_at, delivered_at, status')
       .order('delivery_date', { ascending: false });
     if (!jobsRes.error) data = jobsRes.data || [];
     else error = jobsRes.error;

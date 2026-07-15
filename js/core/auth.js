@@ -10,6 +10,8 @@ import { refreshAllocationBoard } from '../modules/allocations.js';
 import { renderStaffPanelForRole, loadStaff, loadDriversForManagement } from '../modules/staffManagement.js';
 import { showAppShell, showLoginScreen, updateSidebarUser, navigateTo } from '../modules/nav.js';
 
+let hasBootstrappedOnce = false;
+
 export async function bootstrapUser(user) {
   state.currentUser = user;
   state.currentProfile = null;
@@ -17,6 +19,7 @@ export async function bootstrapUser(user) {
   state.currentCustomerId = null;
 
   if (!user) {
+    hasBootstrappedOnce = false;
     showLoginScreen();
     state.visibleJobs = [];
     renderJobs([]);
@@ -31,7 +34,10 @@ export async function bootstrapUser(user) {
   updateSidebarUser(state.currentProfile);
   renderRolePanels();
   renderStaffPanelForRole(role);
-  navigateTo('dashboard');
+  if (!hasBootstrappedOnce) {
+    navigateTo('dashboard');
+    hasBootstrappedOnce = true;
+  }
 
   try {
     if (role === 'customer') await loadCustomerContext();
@@ -88,7 +94,13 @@ export function bindAuthEvents() {
   el('logoutBtn')?.addEventListener('click', logout);
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'INITIAL_SESSION') return;
-    if (event === 'SIGNED_IN' && session?.user) setTimeout(() => bootstrapUser(session.user), 0);
-    if (event === 'SIGNED_OUT') setTimeout(() => bootstrapUser(null), 0);
+    if (event === 'SIGNED_IN' && session?.user) {
+      if (hasBootstrappedOnce && session.user.id === state.currentUser?.id) return;
+      setTimeout(() => bootstrapUser(session.user), 0);
+    }
+    if (event === 'SIGNED_OUT') {
+      hasBootstrappedOnce = false;
+      setTimeout(() => bootstrapUser(null), 0);
+    }
   });
 }

@@ -6,9 +6,54 @@ import { loadDriverJobs, updateDriverLegStatus } from './driverJobs.js';
 let activeProofJobId = null;
 let activeProofLegType = null;
 let signaturePadBound = false;
+let proofSubmitInFlight = false;
 
 // Accumulated photos across multiple captures — fixes the single-photo override bug
 let accumulatedPhotos = [];
+
+function showLoadingOverlay(message = 'Saving, please wait...') {
+  const overlay = el('driverLoadingOverlay');
+  if (!overlay) return;
+  const card = overlay.querySelector('.driver-loading-card');
+  if (card) card.textContent = message;
+  overlay.classList.remove('hidden');
+}
+
+function hideLoadingOverlay() {
+  el('driverLoadingOverlay')?.classList.add('hidden');
+}
+
+function setButtonLoadingState(button, loadingText = 'Saving...') {
+  if (!button) return () => {};
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.classList.add('action-loading');
+  button.textContent = loadingText;
+  return () => {
+    button.disabled = false;
+    button.classList.remove('action-loading');
+    button.textContent = originalText;
+  };
+}
+
+async function resolveDriverIdFromAuthUser() {
+  const authUserId = state.currentUser?.id || null;
+  if (!authUserId) return null;
+
+  const { data, error } = await sb
+    .from('drivers')
+    .select('id')
+    .eq('user_id', authUserId)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    toast('Could not resolve driver profile: ' + error.message, true);
+    return null;
+  }
+
+  return data?.id || null;
+}
 
 export function openProofModal(job, legType) {
   activeProofJobId = job.job_id;
@@ -32,6 +77,7 @@ function closeProofModal() {
   activeProofLegType = null;
   accumulatedPhotos = [];
   signaturePadBound = false;
+  proofSubmitInFlight = false;
   el('proofModal')?.classList.add('hidden');
 }
 
@@ -66,22 +112,69 @@ async function saveModalLegProof(jobId, legType) {
   // A blank canvas produces a ~70 char data URL — anything meaningful is much larger
   if (!sigDataUrl || sigDataUrl.length < 500) { toast('Please add a signature', true); return false; }
 
-  // 1. Create the proof_event row first
+  const driverId = await resolveDriverIdFromAuthUser();
+  if (!driverId) { toast('Driver profile not found for this user', true); return false; }
+
   const proofType = legType === 'pickup' ? 'pickup' : 'delivery';
+  const payload = {
+    job_id: jobId,
+    leg_type: proofType,
+    proof_type: proofType,
+    driver_id: driverId,
+    signed_name: recipientName,
+    notes: notes || null,
+    event_at: new Date().toISOString(),
+    created_by: state.currentUser.id
+  };
+  console.log('proof payload', payload);
+
+  // 1. Create the proof_event row first
   const { data: proofEvent, error: proofEventError } = await sb
     .from('proof_events')
-    .insert([{
-      job_id: jobId,
-      proof_type: proofType,
-      signed_name: recipientName,
-      notes: notes || null,
-      event_at: new Date().toISOString(),
-      created_by: state.currentUser.id
-    }])
+    .insert([payload])
     .select()
     .single();
 
   if (proofEventError) { toast('Could not save proof record: ' + proofEventError.message, true); return false; }
+
+  // 1b. Immediately advance job leg status after proof event is saved
+  if (legType === 'pickup') {
+    const ok = await updateDriverLegStatus(jobId, 'pickup', 'picked_up');
+    if (!ok) return false;
+
+    const { error: pickupJobUpdateError } = await sb
+      .from('jobs')
+      .update({
+        picked_up_at: new Date().toISOString(),
+        pod_ready: true
+      })
+      .eq('id', jobId);
+    if (pickupJobUpdateError) {
+      toast('Could not update pickup timestamp: ' + pickupJobUpdateError.message, true);
+      return false;
+    }
+
+    console.log('Updated pickup for job:', jobId);
+  }
+
+  if (legType === 'delivery') {
+    const ok = await updateDriverLegStatus(jobId, 'delivery', 'delivered');
+    if (!ok) return false;
+
+    const { error: deliveryJobUpdateError } = await sb
+      .from('jobs')
+      .update({
+        delivered_at: new Date().toISOString()
+      })
+      .eq('id', jobId);
+
+    if (deliveryJobUpdateError) {
+      toast('Could not update delivery timestamp: ' + deliveryJobUpdateError.message, true);
+      return false;
+    }
+
+    console.log('Updated delivery for job:', jobId);
+  }
 
   // 2. Upload all photos and insert proof_files rows
   for (const file of accumulatedPhotos) {
@@ -173,12 +266,20 @@ export function bindDriverProofEvents() {
   el('clearModalSignatureBtn')?.addEventListener('click', () => clearSignature('modalProofSignature'));
 
   el('submitProofBtn')?.addEventListener('click', async function () {
+    if (proofSubmitInFlight) return;
     if (!activeProofJobId || !activeProofLegType) return;
-    const ok = await saveModalLegProof(activeProofJobId, activeProofLegType);
-    if (!ok) return;
-    if (activeProofLegType === 'pickup') await updateDriverLegStatus(activeProofJobId, 'pickup', 'picked_up');
-    if (activeProofLegType === 'delivery') await updateDriverLegStatus(activeProofJobId, 'delivery', 'delivered');
-    closeProofModal();
-    await loadDriverJobs();
+    proofSubmitInFlight = true;
+    const restore = setButtonLoadingState(this, 'Saving...');
+    showLoadingOverlay('Saving, please wait...');
+    try {
+      const ok = await saveModalLegProof(activeProofJobId, activeProofLegType);
+      if (!ok) return;
+      closeProofModal();
+      await loadDriverJobs();
+    } finally {
+      hideLoadingOverlay();
+      proofSubmitInFlight = false;
+      restore();
+    }
   });
 }

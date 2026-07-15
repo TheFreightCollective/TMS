@@ -7,6 +7,19 @@
   <link rel="stylesheet" href="./css/driver.css" />
 </head>
 <body>
+  <div id="driverJobModal" class="modal hidden">
+    <div class="modal-card driver-job-modal-card">
+      <div class="row" style="justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h2 id="driverJobModalTitle">Job details</h2>
+          <p id="driverJobModalSub" class="muted"></p>
+        </div>
+        <button id="closeDriverJobModalBtn" class="secondary" style="width:auto;">Close</button>
+      </div>
+      <div id="driverJobModalContent" class="driver-job-modal-content" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
   <div id="proofModal" class="modal hidden">
     <div class="modal-card">
       <div class="row" style="justify-content:space-between; align-items:center;">
@@ -44,9 +57,26 @@
       <div class="job-header" style="margin-bottom:12px;"><div><h2>My Jobs</h2><div class="driver-summary"><div id="driverInfo" class="driver-name"></div><div id="driverStats" class="driver-stats"></div></div></div><button id="refreshJobsBtnDriver" class="secondary">Refresh jobs</button></div>
       <div id="jobs" class="job-list"></div>
     </div>
+
+    <div id="changePasswordPanel" class="panel hidden" style="margin-top:16px;">
+      <div class="job-header" style="margin-bottom:12px;">
+        <div>
+          <h2>Change Password</h2>
+          <p class="muted">Update the password for your current login.</p>
+        </div>
+      </div>
+      <div class="stack">
+        <input id="newPassword" type="password" placeholder="New password" autocomplete="new-password" />
+        <input id="confirmPassword" type="password" placeholder="Confirm password" autocomplete="new-password" />
+        <button id="updatePasswordBtn" type="button" class="inline-btn">Update Password</button>
+      </div>
+    </div>
   </div>
 
   <div id="toast"></div>
+  <div id="driverLoadingOverlay" class="driver-loading-overlay hidden" aria-live="polite" aria-busy="true">
+    <div class="driver-loading-card">Saving, please wait...</div>
+  </div>
   <script type="module" src="./js/apps/driverApp.js"></script>
 </body>
 </html>

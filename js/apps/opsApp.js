@@ -2,6 +2,7 @@ import { bindAuthEvents, refreshFromAuth } from '../core/auth.js';
 import { bindCommonUiEvents } from '../modules/ui.js';
 import { bindFreightEvents, resetBookingItems } from '../modules/freightItems.js';
 import { bindAddressEvents } from '../modules/addresses.js';
+import { bindChangePasswordEvents } from '../modules/userSettings.js';
 import { bindJobEvents } from '../modules/jobs.js';
 import { bindAllocationEvents } from '../modules/allocations.js';
 import { bindEditJobEvents } from '../modules/editJob.js';
@@ -21,6 +22,7 @@ function initOpsApp() {
   bindAuthEvents();
   bindFreightEvents();
   bindAddressEvents();
+  bindChangePasswordEvents();
   bindJobEvents();
   bindAllocationEvents();
   bindEditJobEvents();

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TFC TMS - Customer Portal</title>
+  <link rel="stylesheet" href="./css/ops.css" />
+</head>
+<body>
+
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">
+        <img id="loginBrandLogo" src="./images/rnhlogo.png" alt="Company logo" class="brand-logo" />
+        <div>
+          <h1>TFC Transport</h1>
+          <p class="muted">Customer Portal</p>
+        </div>
+      </div>
+      <div class="stack" style="margin-top:24px;">
+        <input id="email" type="email" placeholder="Email address" />
+        <input id="password" type="password" placeholder="Password" />
+        <button id="loginBtn" class="inline-btn" style="width:100%;padding:12px;">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="appShell" class="app-shell hidden">
+    <div id="sidebarBackdrop" class="sidebar-backdrop hidden"></div>
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <img id="sidebarLogo" src="./images/rnhlogo.png" alt="Company logo" class="sidebar-brand-logo" />
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-section="dashboard">
+          <span class="nav-icon">⊞</span><span class="nav-label">Dashboard</span>
+        </a>
+        <a class="nav-item" data-section="new-booking">
+          <span class="nav-icon">＋</span><span class="nav-label">New Booking</span>
+        </a>
+        <a class="nav-item" data-section="my-jobs">
+          <span class="nav-icon">📋</span><span class="nav-label">My Jobs</span>
+        </a>
+        <a class="nav-item" data-section="saved-addresses">
+          <span class="nav-icon">📍</span><span class="nav-label">Saved Addresses</span>
+        </a>
+        <a class="nav-item" data-section="account">
+          <span class="nav-icon">🔒</span><span class="nav-label">Change Password</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" id="sidebarAvatar">–</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarName">–</div>
+            <div class="sidebar-user-role" id="sidebarRole">–</div>
+          </div>
+        </div>
+        <button id="logoutBtn" class="sidebar-logout-btn">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Toggle navigation">☰</button>
+          <div>
+            <h2 id="pageTitle">Dashboard</h2>
+            <p id="pageSubtitle" class="muted">Overview of your current jobs and bookings</p>
+          </div>
+        </div>
+        <div id="pageActions" class="row"></div>
+      </div>
+
+      <section id="section-dashboard" class="section active">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#dbeafe;color:#1d4ed8;">📋</div>
+            <div class="stat-body">
+              <div class="stat-value" id="customerStatCurrent">–</div>
+              <div class="stat-label">Current Jobs</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#92400e;">📦</div>
+            <div class="stat-body">
+              <div class="stat-value" id="customerStatPending">–</div>
+              <div class="stat-label">Pending / Booked</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">🚚</div>
+            <div class="stat-body">
+              <div class="stat-value" id="customerStatTransit">–</div>
+              <div class="stat-label">In Transit</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4;color:#15803d;">✅</div>
+            <div class="stat-body">
+              <div class="stat-value" id="customerStatCompleted">–</div>
+              <div class="stat-label">Completed</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Recent jobs</h3>
+              <button class="secondary small" data-nav="my-jobs">View all</button>
+            </div>
+            <div id="customerRecentJobs" class="muted" style="padding:12px 0;">Loading...</div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Quick actions</h3>
+            </div>
+            <div class="quick-actions">
+              <button class="quick-action-btn" data-nav="new-booking">
+                <span style="font-size:22px;">＋</span>
+                <span>New booking</span>
+              </button>
+              <button class="quick-action-btn" data-nav="saved-addresses">
+                <span style="font-size:22px;">📍</span>
+                <span>Saved addresses</span>
+              </button>
+              <button class="quick-action-btn" data-nav="my-jobs">
+                <span style="font-size:22px;">📋</span>
+                <span>My jobs</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-new-booking" class="section hidden">
+        <div class="booking-container">
+          <div class="booking-topbar" style="margin-bottom:16px;">
+            <input id="customerRef" placeholder="Customer reference" />
+          </div>
+          <section class="booking-card">
+            <div class="date-row-inline full-width-row">
+              <div class="date-group"><div class="date-label">Pickup date</div><div class="date-input-row"><input id="pickupDate" type="date" /><button type="button" class="toggle-time-btn secondary small" data-target="pickupTimeWrap">+ time</button></div><div id="pickupTimeWrap" class="hidden"><input id="pickupTime" type="time" /></div></div>
+              <div class="date-group"><div class="date-label">Delivery date</div><div class="date-input-row"><input id="deliveryDate" type="date" /><button type="button" class="toggle-time-btn secondary small" data-target="deliveryTimeWrap">+ time</button></div><div id="deliveryTimeWrap" class="hidden"><input id="deliveryTime" type="time" /></div></div>
+            </div>
+          </section>
+          <div class="booking-sections">
+            <section class="booking-card">
+              <h3>Pickup</h3>
+              <select id="pickupAddressSelect"><option value="">Select saved address (optional)</option></select>
+              <input id="pickupCompany" placeholder="Company name" /><input id="pickup-contact" placeholder="Contact name" /><input id="pickup-phone" placeholder="Phone" /><input id="pickupAddressLine" placeholder="Street address" />
+              <div class="location-row"><input id="pickupSuburb" placeholder="Suburb" autocomplete="off" /><input id="pickupState" placeholder="State" /><input id="pickupPostcode" placeholder="Postcode" /></div>
+                <div id="pickupSaveWrap" class="save-booking-wrap"><label><input type="checkbox" id="pickupSaveToBook" /> Save to address book</label><div id="pickupSaveTypeWrap" class="save-type-segment hidden"><label><input type="radio" name="pickupSaveType" value="pickup" checked>Pickup</label><label><input type="radio" name="pickupSaveType" value="delivery">Delivery</label><label><input type="radio" name="pickupSaveType" value="both">Both</label></div></div>
+              <div class="stack" style="margin-top:10px;"><label class="muted" style="font-size:12px;">Pickup instructions</label><textarea id="senderNotes" placeholder="Site access, forklift required, contact before arrival etc"></textarea></div>
+            </section>
+            <section class="booking-card">
+              <h3>Delivery</h3>
+              <select id="deliveryAddressSelect"><option value="">Select saved address (optional)</option></select>
+              <input id="deliveryCompany" placeholder="Company name" /><input id="delivery-contact" placeholder="Contact name" /><input id="delivery-phone" placeholder="Phone" /><input id="deliveryAddressLine" placeholder="Street address" />
+              <div class="location-row"><input id="deliverySuburb" placeholder="Suburb" autocomplete="off" /><input id="deliveryState" placeholder="State" /><input id="deliveryPostcode" placeholder="Postcode" /></div>
+                <div id="deliverySaveWrap" class="save-booking-wrap"><label><input type="checkbox" id="deliverySaveToBook" /> Save to address book</label><div id="deliverySaveTypeWrap" class="save-type-segment hidden"><label><input type="radio" name="deliverySaveType" value="delivery" checked>Delivery</label><label><input type="radio" name="deliverySaveType" value="pickup">Pickup</label><label><input type="radio" name="deliverySaveType" value="both">Both</label></div></div>
+              <div class="stack" style="margin-top:10px;"><label class="muted" style="font-size:12px;">Delivery instructions</label><textarea id="receiverNotes" placeholder="Booking times, site restrictions, contact on arrival etc"></textarea></div>
+            </section>
+          </div>
+          <section class="booking-card items-card" style="margin-top:16px;">
+            <div class="section-head"><h3>Freight items</h3><p class="muted">Cubic is calculated automatically.</p></div>
+            <div class="items-table-wrap"><table class="items-table"><thead><tr><th>Description</th><th>Type</th><th>Qty</th><th>L (m)</th><th>W (m)</th><th>H (m)</th><th>Weight Each (kg)</th><th>Cubic (m³)</th><th></th></tr></thead><tbody id="bookingItemsBody"></tbody></table></div>
+            <div class="row" style="justify-content:space-between;margin-top:12px;">
+              <button id="addBookingItemBtn" type="button" class="secondary inline-btn">+ Add item</button>
+              <div class="item-totals"><div><span class="muted">Total weight </span><strong id="bookingTotalWeight">0 kg</strong></div><div><span class="muted">Total cubic </span><strong id="bookingTotalCubic">0.000 m³</strong></div></div>
+            </div>
+          </section>
+          <div class="booking-actions"><button id="createJobBtn" type="button" class="inline-btn create-job-btn">Create booking</button></div>
+        </div>
+      </section>
+
+      <section id="section-my-jobs" class="section hidden">
+        <div class="panel">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <div>
+              <h3>My Jobs</h3>
+              <p class="muted">Track your current and completed jobs.</p>
+            </div>
+            <div class="row">
+              <button id="reloadMyJobsBtn" class="secondary small">Reload</button>
+            </div>
+          </div>
+          <div class="items-table-wrap">
+            <table class="jobs-table">
+              <thead>
+                <tr>
+                  <th>Job</th>
+                  <th>Reference</th>
+                  <th>Pickup</th>
+                  <th>Delivery</th>
+                  <th>Pickup Date</th>
+                  <th>Delivery Date</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="customerJobsBody"><tr><td colspan="8" class="muted">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-saved-addresses" class="section hidden">
+        <div class="panel">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <div>
+              <h3>Saved Addresses</h3>
+              <p class="muted">Manage reusable pickup and delivery addresses.</p>
+            </div>
+            <div class="row">
+              <button id="addAddressBtn" class="inline-btn small">Add Address</button>
+            </div>
+          </div>
+          <div id="savedAddressesList" class="items-table-wrap"></div>
+        </div>
+      </section>
+
+      <section id="section-account" class="section hidden">
+        <div class="panel" style="max-width:520px;">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <div>
+              <h3>Change Password</h3>
+              <p class="muted">Update the password for your current login.</p>
+            </div>
+          </div>
+          <div class="stack">
+            <input id="newPassword" type="password" placeholder="New password" autocomplete="new-password" />
+            <input id="confirmPassword" type="password" placeholder="Confirm password" autocomplete="new-password" />
+            <button id="updatePasswordBtn" type="button" class="inline-btn">Update Password</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Address modal reused by customer portal -->
+      <div id="address-modal" class="modal hidden">
+        <div class="modal-card">
+          <input id="addr-company" placeholder="Company" required /><input id="addr-line" placeholder="Street address" required />
+          <div class="suburb-row"><div class="suburb-wrap" style="position:relative;"><input id="addr-suburb" placeholder="Start typing suburb..." autocomplete="off" required /><div id="suburb-results"></div></div><input id="addr-state" placeholder="State" readonly /><input id="addr-postcode" placeholder="Postcode" readonly /></div>
+          <input id="addr-contact" placeholder="Contact Name" /><input id="addr-phone" placeholder="Phone" />
+          <select id="addr-type"><option value="both">Both</option><option value="pickup">Pickup Only</option><option value="delivery">Delivery Only</option></select>
+          <div style="display:flex;gap:10px;margin-top:10px;"><button id="saveAddressBtn" class="inline-btn">Save</button><button id="cancelAddressBtn" class="secondary inline-btn">Cancel</button></div>
+        </div>
+      </div>
+
+      <div id="customerJobModal" class="modal hidden">
+        <div id="customerJobModalCard" class="modal-card pod-viewer-card">
+          <div class="pod-viewer-toolbar no-print">
+            <div>
+              <h2>Proof of Delivery</h2>
+              <p class="muted">Customer-safe POD document for this job.</p>
+            </div>
+            <div class="row">
+              <button id="customerPrintPodBtn" class="inline-btn small">Print / Download PDF</button>
+              <button id="closeCustomerJobModalBtn" class="secondary small">Close</button>
+            </div>
+          </div>
+          <div id="customerJobModalContent" class="pod-viewer-content"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div id="toast"></div>
+  <script type="module" src="./js/apps/customerApp.js"></script>
+</body>
+</html>
